@@ -1,0 +1,6 @@
+{
+  "name": "Dar Transit Router",
+  "description": "Crowdsourced transit updates, Dijkstra route planner, and AI travel pattern analysts for Dar es Salaam's DART and Daladala network.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
