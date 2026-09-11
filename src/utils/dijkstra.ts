@@ -29,9 +29,18 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   sinza: { name: 'Sinza Mori', lat: -6.7800, long: 39.3100 },
   kimara: { name: 'Kimara Corner', lat: -6.7690, long: 39.3430 },
   mbezi: { name: 'Mbezi Beach', lat: -6.7610, long: 39.3720 },
-  mbagala: { name: 'Mbagala (Chang’ombe)', lat: -6.7980, long: 39.2790 },
+  mbagala: { name: 'Mbagala', lat: -6.7980, long: 39.2790 },
   tmj: { name: 'Tandika-Mjimwema Rd (Kigamboni)', lat: -6.8090, long: 39.2310 },
   gerezani_terminus: { name: 'Gerezani Ferry Terminus', lat: -6.7640, long: 39.2560 },
+  // --- Corridor stops following real Dar es Salaam roads ---
+  kurasini: { name: 'Kurasini', lat: -6.7950, long: 39.2600 },
+  mtoni: { name: 'Mtoni', lat: -6.7940, long: 39.2720 },
+  changombe: { name: "Chang'ombe", lat: -6.7960, long: 39.2660 },
+  temeke: { name: 'Temeke Mjini', lat: -6.8160, long: 39.2840 },
+  mabibo: { name: 'Mabibo', lat: -6.7950, long: 39.3050 },
+  mlimani: { name: 'Mlimani (UDSM)', lat: -6.7690, long: 39.2870 },
+  magufuli_terminal: { name: 'Magufuli Bus Terminal', lat: -6.7870, long: 39.2990 },
+  gongo: { name: 'Gongo la Mboto', lat: -6.7950, long: 39.3170 },
   // --- City center & inner districts ---
   posta: { name: 'Posta (City Center)', lat: -6.7720, long: 39.2280 },
   kariakoo_market: { name: 'Kariakoo Market', lat: -6.7680, long: 39.2660 },
@@ -46,7 +55,6 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   kawe: { name: 'Kawe', lat: -6.7570, long: 39.3150 },
   tazara: { name: 'Tazara Railway Station', lat: -6.7920, long: 39.3010 },
   tabata: { name: 'Tabata', lat: -6.7940, long: 39.2660 },
-  temeke: { name: 'Temeke', lat: -6.8140, long: 39.2870 },
 };
 
 export { STOPS as STOP_COORDS };
@@ -88,7 +96,7 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   { from: 'masaki', to: 'slipway', baseMinutes: 5, basePriceTzs: 300, label: 'Daladala Slipway' },
   { from: 'slipway', to: 'otrong_tire', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Toure Drive' },
   { from: 'mikocheni', to: 'sinza', baseMinutes: 11, basePriceTzs: 400, label: 'Daladala Mwenge-Sinza' },
-  { from: 'tegeta_mwenge', to: 'mbagala', baseMinutes: 17, basePriceTzs: 550, label: 'Daladala Mbagala' },
+  // (removed: Tegeta→Mbagala — geographically wrong, they are on opposite sides of the city)
   { from: 'mbagala', to: 'kariakoo_gerezani', baseMinutes: 14, basePriceTzs: 500, label: 'Daladala Chang\u2019ombe' },
   { from: 'kivukoni', to: 'gerezani_terminus', baseMinutes: 6, basePriceTzs: 300, label: 'Kigamboni ferry walk' },
   { from: 'gerezani_terminus', to: 'kariakoo_gerezani', baseMinutes: 5, basePriceTzs: 250, label: 'Gerezani link shuttle' },
@@ -113,6 +121,29 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   { from: 'mwenge', to: 'morocco', baseMinutes: 8, basePriceTzs: 350, label: 'Daladala Mwenge-Morocco' },
   { from: 'mwenge', to: 'mikocheni', baseMinutes: 9, basePriceTzs: 400, label: 'Daladala Mwenge-Mikocheni' },
   { from: 'mwenge', to: 'kariakoo_market', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Mwenge-Kariakoo' },
+  // --- Kawawa Rd corridor (BRT Phase 2 route): Kariakoo→Kurasini→Mtoni→Chang'ombe→Mbagala→Temeke ---
+  { from: 'kariakoo_market', to: 'kurasini', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Kawawa line' },
+  { from: 'kurasini', to: 'mtoni', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Mtoni' },
+  { from: 'mtoni', to: 'changombe', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Chang’ombe' },
+  { from: 'changombe', to: 'mbagala', baseMinutes: 7, basePriceTzs: 350, label: 'Daladala Mbagala' },
+  { from: 'mbagala', to: 'temeke', baseMinutes: 12, basePriceTzs: 450, label: 'Daladala Temeke' },
+  // --- Nyerere Rd (airport corridor): Chang'ombe→Ukonga---
+  { from: 'changombe', to: 'ukonga', baseMinutes: 12, basePriceTzs: 500, label: 'Daladala Nyerere Rd' },
+  // --- Nelson Mandela Rd: Mbagala→Tazara→Mabibo→Ubungo ---
+  { from: 'mbagala', to: 'tazara', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Mandela Rd' },
+  { from: 'tazara', to: 'mabibo', baseMinutes: 8, basePriceTzs: 350, label: 'Daladala Mabibo' },
+  { from: 'mabibo', to: 'ubungo', baseMinutes: 7, basePriceTzs: 300, label: 'Daladala Ubungo link' },
+  // --- Mlimani / Magufuli Terminal cluster (Sam Nujoma axis) ---
+  { from: 'mwenge', to: 'mlimani', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Mlimani' },
+  { from: 'mlimani', to: 'ubungo', baseMinutes: 9, basePriceTzs: 350, label: 'DART M5 feeder' },
+  { from: 'mlimani', to: 'magufuli_terminal', baseMinutes: 5, basePriceTzs: 250, label: 'Magufuli terminal shuttle' },
+  { from: 'magufuli_terminal', to: 'ubungo', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Ubungo feeder' },
+  { from: 'magufuli_terminal', to: 'sinza', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Sinza' },
+  // --- Bagamoyo Rd proper: Mwenge→Tegeta ---
+  { from: 'mwenge', to: 'tegeta_mwenge', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Bagamoyo Rd' },
+  // --- Pugu Rd: Buguruni→Gongo la Mboto→Ukonga ---
+  { from: 'buguruni', to: 'gongo', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Gongo la Mboto' },
+  { from: 'gongo', to: 'ukonga', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Ukonga-Pugu Rd' },
   // --- Coastal & outer districts ---
   { from: 'msasani', to: 'masaki', baseMinutes: 8, basePriceTzs: 300, label: 'Daladala Msasani' },
   { from: 'msasani', to: 'slipway', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Toure Drive' },
