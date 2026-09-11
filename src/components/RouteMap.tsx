@@ -72,8 +72,8 @@ export function RouteMap({ route, startStopId, endStopId, onUseAsStart, onUseAsE
   return (
     <div className="route-map-wrap">
       <MapContainer
-        center={[-6.79, 39.26]}
-        zoom={12}
+        center={[-6.82, 39.22]}
+        zoom={11}
         scrollWheelZoom={false}
         className="route-map"
       >

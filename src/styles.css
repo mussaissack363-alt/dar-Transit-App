@@ -1216,3 +1216,7 @@ textarea {
 .map-nearest-btn:hover {
   filter: brightness(0.92);
 }
+
+.map-search-area {
+  font-size: 0.8rem;
+}

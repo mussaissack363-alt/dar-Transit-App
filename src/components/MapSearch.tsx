@@ -7,6 +7,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { STOP_COORDS, STOP_NAMES } from '../utils/dijkstra';
+import { DAR_AREAS, DarArea } from '../data/darAreas';
 
 interface StopHit {
   kind: 'stop';
@@ -24,7 +25,16 @@ interface PlaceHit {
   long: number;
 }
 
-type SearchHit = StopHit | PlaceHit;
+interface AreaHit {
+  kind: 'area';
+  id: string;
+  name: string;
+  lat: number;
+  long: number;
+  district: string;
+}
+
+type SearchHit = StopHit | AreaHit | PlaceHit;
 
 export interface NearestStop {
   id: string;
@@ -88,12 +98,42 @@ async function geocode(query: string, signal: AbortSignal): Promise<PlaceHit[]> 
   }));
 }
 
+/** Secondary geocoder used when Nominatim returns nothing. */
+async function geocodePhoton(query: string, signal: AbortSignal): Promise<PlaceHit[]> {
+  const url =
+    'https://photon.komoot.io/api/?limit=5' +
+    '&bbox=38.9,-7.2,39.7,-6.5' +
+    '&q=' +
+    encodeURIComponent(query);
+  const res = await fetch(url, { signal, headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error('photon failed');
+  const data = (await res.json()) as {
+    features: Array<{
+      properties: { osm_id: number; name: string; city?: string; district?: string; suburb?: string };
+      geometry: { coordinates: [number, number] };
+    }>;
+  };
+  return data.features
+    .filter((f) => f.properties.name)
+    .map((f) => ({
+      kind: 'place' as const,
+      id: `photon-${f.properties.osm_id}`,
+      name: [f.properties.name, f.properties.district ?? f.properties.suburb, f.properties.city]
+        .filter(Boolean)
+        .slice(0, 3)
+        .join(', '),
+      lat: f.geometry.coordinates[1],
+      long: f.geometry.coordinates[0],
+    }));
+}
+
 export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
   const map = useMap();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [stopHits, setStopHits] = useState<StopHit[]>([]);
+  const [areaHits, setAreaHits] = useState<AreaHit[]>([]);
   const [placeHits, setPlaceHits] = useState<PlaceHit[]>([]);
   const [marker, setMarker] = useState<L.Marker | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -126,6 +166,7 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
     const q = query.trim().toLowerCase();
     if (!q) {
       setStopHits([]);
+      setAreaHits([]);
       setPlaceHits([]);
       setBusy(false);
       return;
@@ -134,13 +175,31 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
       allStops.filter((s) => s.name.toLowerCase().includes(q) || s.id.includes(q)).slice(0, 6)
     );
 
+    // Curated Dar areas match instantly and offline.
+    const areaQuery = q.replace(/^dar es salaam[, ]*/i, '');
+    setAreaHits(
+      DAR_AREAS.filter((a) => a.name.toLowerCase().includes(areaQuery))
+        .slice(0, 8)
+        .map((a) => ({
+          kind: 'area' as const,
+          id: `area-${a.name.toLowerCase().replace(/\W+/g, '-')}`,
+          name: a.district === 'Landmark' ? a.name : `${a.name} (${a.district})`,
+          lat: a.lat,
+          long: a.long,
+          district: a.district,
+        }))
+    );
+
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
     const timer = setTimeout(async () => {
       setBusy(true);
       try {
-        const hits = await geocode(query.trim(), controller.signal);
+        let hits = await geocode(query.trim(), controller.signal);
+        if (hits.length === 0) {
+          hits = await geocodePhoton(query.trim(), controller.signal);
+        }
         if (!controller.signal.aborted) setPlaceHits(hits);
       } catch {
         if (!controller.signal.aborted) setPlaceHits([]);
@@ -151,7 +210,7 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
     return () => clearTimeout(timer);
   }, [query, allStops]);
 
-  /** Pan/zoom to a hit; places get a pin popup with nearest stops + plan buttons. */
+  /** Pan/zoom to a hit; areas and places get a pin popup with nearest stops + plan buttons. */
   const go = (hit: SearchHit) => {
     map.flyTo([hit.lat, hit.long], hit.kind === 'stop' ? 15 : 16, { duration: 0.8 });
     setOpen(false);
@@ -160,7 +219,7 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
       marker.remove();
       setMarker(null);
     }
-    if (hit.kind === 'place') {
+    if (hit.kind !== 'stop') {
       const m = L.marker([hit.lat, hit.long]).addTo(map);
       const nearest = nearestStops(hit.lat, hit.long);
       const div = document.createElement('div');
@@ -194,7 +253,7 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
     }
   };
 
-  const hasResults = stopHits.length > 0 || placeHits.length > 0;
+  const hasResults = stopHits.length > 0 || areaHits.length > 0 || placeHits.length > 0;
 
   return (
     <div className="map-search" ref={wrapRef}>
@@ -211,7 +270,7 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
             if (e.key === 'Escape') setOpen(false);
-            const first = stopHits[0] ?? placeHits[0];
+            const first = stopHits[0] ?? areaHits[0] ?? placeHits[0];
             if (e.key === 'Enter' && open && first) go(first);
           }}
         />
@@ -227,6 +286,19 @@ export function MapSearch({ onUseAsStart, onUseAsEnd }: MapSearchHandlers) {
                 <button key={s.id} type="button" className="map-search-item" onClick={() => go(s)}>
                   <span className="map-search-dot" aria-hidden="true" />
                   {s.name}
+                </button>
+              ))}
+            </>
+          )}
+          {areaHits.length > 0 && (
+            <>
+              <p className="map-search-group">Dar es Salaam areas</p>
+              {areaHits.map((a) => (
+                <button key={a.id} type="button" className="map-search-item" onClick={() => go(a)}>
+                  <span className="map-search-area" aria-hidden="true">
+                    🏘️
+                  </span>
+                  {a.name}
                 </button>
               ))}
             </>
