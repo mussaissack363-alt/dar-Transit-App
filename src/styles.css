@@ -1081,3 +1081,102 @@ textarea {
 .fare-flagged {
   background: oklch(0.6 0.2 25 / 0.06);
 }
+
+/* ---- On-map search overlay ---- */
+.map-search {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1000; /* above Leaflet panes */
+  width: min(320px, calc(100% - 60px));
+}
+
+.map-search-box {
+  position: relative;
+}
+
+.map-search-box input {
+  width: 100%;
+  padding: 9px 30px 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  font-size: 0.9rem;
+}
+
+.map-search-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: map-search-spin 0.8s linear infinite;
+}
+
+@keyframes map-search-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.map-search-panel {
+  margin-top: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  padding: 4px;
+}
+
+.map-search-group {
+  margin: 6px 8px 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted-foreground);
+}
+
+.map-search-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.86rem;
+  color: var(--foreground);
+}
+
+.map-search-item:hover {
+  background: var(--secondary);
+}
+
+.map-search-empty {
+  cursor: default;
+  color: var(--muted-foreground);
+}
+
+.map-search-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.map-search-pin {
+  font-size: 0.8rem;
+}

@@ -15,6 +15,7 @@ import {
 import L from 'leaflet';
 import { STOP_COORDS } from '../utils/dijkstra';
 import { TransitRouteResult } from '../types';
+import { MapSearch } from './MapSearch';
 import 'leaflet/dist/leaflet.css';
 
 /** Colorful circle markers so we do not depend on Leaflet's default PNG pins. */
@@ -94,9 +95,10 @@ export function RouteMap({ route, startStopId, endStopId }: RouteMapProps) {
           />
         )}
         <FitBounds route={route} />
+        <MapSearch />
       </MapContainer>
       <p className="route-map-caption">
-        Live map &copy; OpenStreetMap contributors — stops across Dar es Salaam.
+        Live map &amp; search &copy; OpenStreetMap contributors — 25 stops across Dar es Salaam.
       </p>
     </div>
   );
