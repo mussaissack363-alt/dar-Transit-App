@@ -32,6 +32,21 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   mbagala: { name: 'Mbagala (Chang’ombe)', lat: -6.7980, long: 39.2790 },
   tmj: { name: 'Tandika-Mjimwema Rd (Kigamboni)', lat: -6.8090, long: 39.2310 },
   gerezani_terminus: { name: 'Gerezani Ferry Terminus', lat: -6.7640, long: 39.2560 },
+  // --- City center & inner districts ---
+  posta: { name: 'Posta (City Center)', lat: -6.7720, long: 39.2280 },
+  kariakoo_market: { name: 'Kariakoo Market', lat: -6.7680, long: 39.2660 },
+  muhimbili: { name: 'Muhimbili National Hospital', lat: -6.7720, long: 39.2730 },
+  msimbazi: { name: 'Msimbazi / Jangwani Bridge', lat: -6.7760, long: 39.2790 },
+  buguruni: { name: 'Buguruni', lat: -6.7800, long: 39.2930 },
+  ilala: { name: 'Ilala Boma', lat: -6.7860, long: 39.2740 },
+  manzese: { name: 'Manzese Market', lat: -6.7770, long: 39.3190 },
+  mwenge: { name: 'Mwenge Woodcarvers Hub', lat: -6.7600, long: 39.2700 },
+  // --- Coastal & outer districts ---
+  msasani: { name: 'Msasani Peninsula', lat: -6.7330, long: 39.2980 },
+  kawe: { name: 'Kawe', lat: -6.7570, long: 39.3150 },
+  tazara: { name: 'Tazara Railway Station', lat: -6.7920, long: 39.3010 },
+  tabata: { name: 'Tabata', lat: -6.7940, long: 39.2660 },
+  temeke: { name: 'Temeke', lat: -6.8140, long: 39.2870 },
 };
 
 export { STOPS as STOP_COORDS };
@@ -78,6 +93,34 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   { from: 'kivukoni', to: 'gerezani_terminus', baseMinutes: 6, basePriceTzs: 300, label: 'Kigamboni ferry walk' },
   { from: 'gerezani_terminus', to: 'kariakoo_gerezani', baseMinutes: 5, basePriceTzs: 250, label: 'Gerezani link shuttle' },
   { from: 'kivukoni', to: 'tmj', baseMinutes: 20, basePriceTzs: 650, label: 'Daladala Kigamboni town' },
+  // --- City center & inner districts ---
+  { from: 'kivukoni', to: 'posta', baseMinutes: 7, basePriceTzs: 300, label: 'Daladala Posta' },
+  { from: 'posta', to: 'kariakoo_market', baseMinutes: 6, basePriceTzs: 250, label: 'Daladala Kariakoo line' },
+  { from: 'kariakoo_market', to: 'kariakoo_gerezani', baseMinutes: 5, basePriceTzs: 250, label: 'Kariakoo link' },
+  { from: 'kariakoo_market', to: 'muhimbili', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Muhimbili' },
+  { from: 'muhimbili', to: 'msimbazi', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Morogoro line' },
+  { from: 'msimbazi', to: 'ubungo', baseMinutes: 12, basePriceTzs: 450, label: 'DART M3 Morogoro' },
+  { from: 'msimbazi', to: 'buguruni', baseMinutes: 7, basePriceTzs: 300, label: 'Daladala Buguruni' },
+  { from: 'buguruni', to: 'mzizima', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Mzizima feeder' },
+  { from: 'ilala', to: 'msimbazi', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Ilala' },
+  { from: 'ilala', to: 'tabata', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Tabata' },
+  { from: 'tabata', to: 'mbagala', baseMinutes: 9, basePriceTzs: 400, label: 'Daladala Nelson Mandela' },
+  { from: 'tabata', to: 'tazara', baseMinutes: 12, basePriceTzs: 450, label: 'Daladala Tazara' },
+  { from: 'tazara', to: 'ubungo', baseMinutes: 7, basePriceTzs: 350, label: 'Daladala Ubungo link' },
+  { from: 'tazara', to: 'mzizima', baseMinutes: 8, basePriceTzs: 350, label: 'Daladala Tazara-Mzizima' },
+  { from: 'manzese', to: 'ubungo', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Manzese' },
+  { from: 'manzese', to: 'kimara', baseMinutes: 9, basePriceTzs: 400, label: 'Daladala Morogoro express' },
+  { from: 'mwenge', to: 'morocco', baseMinutes: 8, basePriceTzs: 350, label: 'Daladala Mwenge-Morocco' },
+  { from: 'mwenge', to: 'mikocheni', baseMinutes: 9, basePriceTzs: 400, label: 'Daladala Mwenge-Mikocheni' },
+  { from: 'mwenge', to: 'kariakoo_market', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Mwenge-Kariakoo' },
+  // --- Coastal & outer districts ---
+  { from: 'msasani', to: 'masaki', baseMinutes: 8, basePriceTzs: 300, label: 'Daladala Msasani' },
+  { from: 'msasani', to: 'slipway', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Toure Drive' },
+  { from: 'msasani', to: 'mikocheni', baseMinutes: 12, basePriceTzs: 400, label: 'Daladala Msasani-Mikocheni' },
+  { from: 'kawe', to: 'mikocheni', baseMinutes: 10, basePriceTzs: 350, label: 'Daladala Kawe' },
+  { from: 'kawe', to: 'mbezi', baseMinutes: 12, basePriceTzs: 450, label: 'Daladala Mbezi Rd' },
+  { from: 'temeke', to: 'mbagala', baseMinutes: 12, basePriceTzs: 450, label: 'Daladala Temeke' },
+  { from: 'temeke', to: 'tabata', baseMinutes: 16, basePriceTzs: 500, label: 'Daladala Temeke-Tabata' },
 ];
 
 /**
