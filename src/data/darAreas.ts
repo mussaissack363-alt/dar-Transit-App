@@ -67,6 +67,12 @@ export const DAR_AREAS: DarArea[] = [
   { name: 'Minazi Mirefu', district: 'Ilala', lat: -6.799, long: 39.282 },
   { name: 'Liwiti', district: 'Ilala', lat: -6.798, long: 39.272 },
   { name: 'Kisukuru', district: 'Ilala', lat: -6.812, long: 39.274 },
+  { name: 'Banana (Kitunda hub)', district: 'Ilala', lat: -6.823, long: 39.301 },
+  { name: 'Mwanagati', district: 'Ilala', lat: -6.834, long: 39.309 },
+  { name: 'Kwa Moshi', district: 'Ilala', lat: -6.845, long: 39.305 },
+  { name: 'Machimbo', district: 'Ilala', lat: -6.829, long: 39.315 },
+  { name: 'Viwandani (Yombo)', district: 'Ilala', lat: -6.822, long: 39.303 },
+  { name: 'Kibeberu', district: 'Ilala', lat: -6.836, long: 39.295 },
 
   // ─── Kinondoni Municipal (982k, seat Ndugumbi) — coastal north ───
   { name: 'Magomeni', district: 'Kinondoni', lat: -6.786, long: 39.256 },
@@ -93,6 +99,12 @@ export const DAR_AREAS: DarArea[] = [
   { name: 'Mabwepande', district: 'Kinondoni', lat: -6.73, long: 39.35 },
   { name: 'Mbezi Juu', district: 'Kinondoni', lat: -6.759, long: 39.34 },
   { name: 'Mbweni', district: 'Kinondoni', lat: -6.775, long: 39.248 },
+  { name: 'Boko', district: 'Kinondoni', lat: -6.727, long: 39.318 },
+  { name: 'Mbande', district: 'Kinondoni', lat: -6.733, long: 39.338 },
+  { name: 'Kibamba', district: 'Kinondoni', lat: -6.754, long: 39.362 },
+  { name: 'Bunju A', district: 'Kinondoni', lat: -6.737, long: 39.355 },
+  { name: 'Bunju B', district: 'Kinondoni', lat: -6.73, long: 39.365 },
+  { name: 'Mabwepande Kwa Ndege', district: 'Kinondoni', lat: -6.72, long: 39.355 },
 
   // ─── Ubungo Municipal (1.09M, seat Kwembe) — the crossroads ───
   { name: 'Ubungo (interchange)', district: 'Ubungo', lat: -6.7845, long: 39.2965 },
@@ -105,6 +117,9 @@ export const DAR_AREAS: DarArea[] = [
   { name: 'Goba', district: 'Ubungo', lat: -6.765, long: 39.37 },
   { name: 'Mlimani', district: 'Ubungo', lat: -6.769, long: 39.287 },
   { name: 'Mburahati', district: 'Ubungo', lat: -6.772, long: 39.29 },
+  { name: 'Kiluvya', district: 'Ubungo', lat: -6.748, long: 39.392 },
+  { name: 'Goba Kwa Jombe', district: 'Ubungo', lat: -6.757, long: 39.382 },
+  { name: 'Mbezi Mwisho (Njia Panda)', district: 'Ubungo', lat: -6.771, long: 39.362 },
 
   // ─── Temeke Municipal (1.35M, seat Miburani) — industrial south ───
   { name: 'Kurasini', district: 'Temeke', lat: -6.795, long: 39.26 },
@@ -131,6 +146,10 @@ export const DAR_AREAS: DarArea[] = [
   { name: 'Sandali', district: 'Temeke', lat: -6.835, long: 39.276 },
   { name: 'Kulangwa', district: 'Temeke', lat: -6.842, long: 39.262 },
   { name: 'Majani ya Gani', district: 'Temeke', lat: -6.826, long: 39.282 },
+  { name: 'Mbagala Rangi Tatu (Rangi 3)', district: 'Temeke', lat: -6.806, long: 39.292 },
+  { name: 'Mtoni Mtongani', district: 'Temeke', lat: -6.801, long: 39.275 },
+  { name: 'Kiburugwa', district: 'Temeke', lat: -6.812, long: 39.286 },
+  { name: 'Charambe Kwa Wazee', district: 'Temeke', lat: -6.803, long: 39.273 },
 
   // ─── Kigamboni Municipal (318k, seat Somangila) — 9 wards ───
   { name: 'Kigamboni (town)', district: 'Kigamboni', lat: -6.812, long: 39.243 },
@@ -142,6 +161,12 @@ export const DAR_AREAS: DarArea[] = [
   { name: 'Kimbiji', district: 'Kigamboni', lat: -6.855, long: 39.262 },
   { name: 'Pemba Mnazi', district: 'Kigamboni', lat: -6.865, long: 39.24 },
   { name: 'Somangila', district: 'Kigamboni', lat: -6.88, long: 39.27 },
+  { name: 'Kibugumo', district: 'Kigamboni', lat: -6.816, long: 39.255 },
+  { name: 'Gezaulole', district: 'Kigamboni', lat: -6.825, long: 39.256 },
+  { name: 'Kisiwani', district: 'Kigamboni', lat: -6.835, long: 39.235 },
+  { name: 'Ungindoni', district: 'Kigamboni', lat: -6.818, long: 39.249 },
+  { name: 'Mbutu Kichangani', district: 'Kigamboni', lat: -6.826, long: 39.24 },
+  { name: 'Kongowe', district: 'Kigamboni', lat: -6.804, long: 39.252 },
 
   // ─── Landmarks ───
   { name: 'Magufuli Bus Terminal', district: 'Landmark', lat: -6.787, long: 39.299 },

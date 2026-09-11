@@ -49,6 +49,32 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   tabata_dk: { name: 'Tabata DK', lat: -6.7940, long: 39.2660 },
   tabata_changombe: { name: "Tabata Chang'ombe", lat: -6.7970, long: 39.2700 },
   segerea: { name: 'Tabata Segerea', lat: -6.8150, long: 39.2650 },
+  // --- Remote terminal hubs (real daladala termini from OSM route survey) ---
+  banana: { name: 'Banana (Msimbazi river)', lat: -6.7990, long: 39.3230 },
+  rangi3: { name: 'Mbagala Rangi 3', lat: -6.8060, long: 39.2920 },
+  mtoni_mtongani: { name: 'Mtoni Mtongani', lat: -6.8010, long: 39.2750 },
+  kiburugwa: { name: 'Kiburugwa', lat: -6.8120, long: 39.2860 },
+  viwandani: { name: 'Viwandani (Yombo Vituka)', lat: -6.8220, long: 39.3030 },
+  machimbo: { name: 'Machimbo', lat: -6.8290, long: 39.3150 },
+  mwanagati: { name: 'Mwanagati', lat: -6.8340, long: 39.3090 },
+  kwa_moshi: { name: 'Kwa Moshi', lat: -6.8450, long: 39.3050 },
+  kongowe: { name: 'Kongowe (Temeke)', lat: -6.8070, long: 39.2780 },
+  kibugumo: { name: 'Kibugumo', lat: -6.8160, long: 39.2550 },
+  gezaulole: { name: 'Gezaulole', lat: -6.8250, long: 39.2560 },
+  kimbiji: { name: 'Kimbiji', lat: -6.8550, long: 39.2620 },
+  kisiwani: { name: 'Kisiwani', lat: -6.8350, long: 39.2350 },
+  vijibweni: { name: 'Vijibweni', lat: -6.8450, long: 39.2470 },
+  somangila: { name: 'Somangila', lat: -6.8800, long: 39.2700 },
+  bunju: { name: 'Bunju', lat: -6.7410, long: 39.3480 },
+  charambe: { name: 'Charambe', lat: -6.8000, long: 39.2730 },
+  boko: { name: 'Boko', lat: -6.7270, long: 39.3180 },
+  mbande: { name: 'Mbande', lat: -6.7330, long: 39.3380 },
+  kibamba: { name: 'Kibamba', lat: -6.7540, long: 39.3620 },
+  kiluvya: { name: 'Kiluvya', lat: -6.7480, long: 39.3920 },
+  goba: { name: 'Goba', lat: -6.7650, long: 39.3700 },
+  mbezi_mwisho: { name: 'Mbezi Mwisho (Njia Panda)', lat: -6.7710, long: 39.3620 },
+  kitunda: { name: 'Kitunda', lat: -6.8170, long: 39.2930 },
+  chanika: { name: 'Chanika', lat: -6.8130, long: 39.2900 },
   // --- City center & inner districts ---
   posta: { name: 'Posta (City Center)', lat: -6.7720, long: 39.2280 },
   kariakoo_market: { name: 'Kariakoo Market', lat: -6.7680, long: 39.2660 },
@@ -163,6 +189,45 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   { from: 'tabata_changombe', to: 'changombe', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Chang’ombe link' },
   { from: 'tabata_changombe', to: 'segerea', baseMinutes: 13, basePriceTzs: 450, label: 'Daladala Segerea' },
   { from: 'tabata_dk', to: 'tabata', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Tabata stage' },
+  // --- Real daladala route structure (terminal pairs from OSM survey) ---
+  // Southern Ilala belt: Banana is the Kitunda/Chanika zone hub
+  { from: 'gongo', to: 'chanika', baseMinutes: 7, basePriceTzs: 350, label: 'Gongo–Chanika' },
+  { from: 'chanika', to: 'banana', baseMinutes: 6, basePriceTzs: 300, label: 'Chanika–Banana' },
+  { from: 'kitunda', to: 'banana', baseMinutes: 8, basePriceTzs: 300, label: 'Daladala Banana line' },
+  { from: 'kitunda', to: 'gongo', baseMinutes: 7, basePriceTzs: 300, label: 'Kitunda–Gongo' },
+  // Real route 18: Buguruni–Yombo Vituka/Viwandani
+  { from: 'buguruni', to: 'viwandani', baseMinutes: 12, basePriceTzs: 450, label: 'Buguruni–Viwandani' },
+  { from: 'banana', to: 'viwandani', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Viwandani' },
+  { from: 'banana', to: 'machimbo', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Machimbo' },
+  { from: 'banana', to: 'mwanagati', baseMinutes: 12, basePriceTzs: 400, label: 'Daladala Mwanagati' },
+  { from: 'mwanagati', to: 'kwa_moshi', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Kwa Moshi' },
+  { from: 'banana', to: 'kwa_moshi', baseMinutes: 18, basePriceTzs: 500, label: 'Banana–Kwa Moshi express' },
+  // Mbagala Rangi 3 hub (Temeke)
+  { from: 'mbagala', to: 'rangi3', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Rangi 3 stage' },
+  { from: 'rangi3', to: 'kiburugwa', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Kiburugwa' },
+  { from: 'rangi3', to: 'kongowe', baseMinutes: 9, basePriceTzs: 350, label: 'Rangi 3–Kongowe' },
+  { from: 'rangi3', to: 'temeke', baseMinutes: 10, basePriceTzs: 400, label: 'Rangi 3–Temeke' },
+  { from: 'rangi3', to: 'charambe', baseMinutes: 6, basePriceTzs: 300, label: 'Rangi 3–Charambe' },
+  // Mtoni Mtongani branch
+  { from: 'gongo', to: 'mtoni_mtongani', baseMinutes: 8, basePriceTzs: 350, label: 'Gongo–Mtoni Mtongani' },
+  // Gongo la Mboto radial (real: Gongo–Mwenge via Sam Nujoma)
+  { from: 'gongo', to: 'mbezi_mwisho', baseMinutes: 12, basePriceTzs: 450, label: 'Gongo–Mbezi Mwisho' },
+  { from: 'mbezi_mwisho', to: 'kibamba', baseMinutes: 8, basePriceTzs: 350, label: 'Mbezi Mwisho–Kibamba' },
+  { from: 'kibamba', to: 'goba', baseMinutes: 7, basePriceTzs: 350, label: 'Kibamba–Goba' },
+  { from: 'kibamba', to: 'kiluvya', baseMinutes: 9, basePriceTzs: 400, label: 'Kibamba–Kiluvya' },
+  // Kinondoni remote coast (real: Makumbusho–Ununio, Boko–Mbezi Beach)
+  { from: 'kawe', to: 'ubungo', baseMinutes: 12, basePriceTzs: 400, label: 'Kawe–Ubungo' },
+  { from: 'kawe', to: 'boko', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Boko line' },
+  { from: 'bunju', to: 'kibamba', baseMinutes: 7, basePriceTzs: 350, label: 'Bunju–Kibamba' },
+  { from: 'boko', to: 'mbande', baseMinutes: 7, basePriceTzs: 350, label: 'Boko–Mbande' },
+  { from: 'mbande', to: 'bunju', baseMinutes: 8, basePriceTzs: 350, label: 'Mbande–Bunju' },
+  // Kigamboni interior branches (real terminal pairs)
+  { from: 'tmj', to: 'kibugumo', baseMinutes: 7, basePriceTzs: 300, label: 'Daladala Kibugumo' },
+  { from: 'kibugumo', to: 'gezaulole', baseMinutes: 8, basePriceTzs: 300, label: 'Kibugumo–Gezaulole' },
+  { from: 'tmj', to: 'vijibweni', baseMinutes: 14, basePriceTzs: 400, label: 'Kigamboni–Vijibweni' },
+  { from: 'kimbiji', to: 'somangila', baseMinutes: 10, basePriceTzs: 400, label: 'Kimbiji–Somangila' },
+  { from: 'kimbiji', to: 'kisiwani', baseMinutes: 9, basePriceTzs: 350, label: 'Kimbiji–Kisiwani' },
+  { from: 'vijibweni', to: 'kimbiji', baseMinutes: 8, basePriceTzs: 350, label: 'Vijibweni–Kimbiji' },
   // --- Coastal & outer districts ---
   { from: 'msasani', to: 'masaki', baseMinutes: 8, basePriceTzs: 300, label: 'Daladala Msasani' },
   { from: 'msasani', to: 'slipway', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Toure Drive' },
@@ -283,55 +348,53 @@ interface PathState {
 }
 
 /**
- * Best-first enumeration of distinct simple paths, cheapest-first.
- * The graph is small, so an exhaustive-ish scan with a cap is plenty
- * and gives us real alternatives, not just the single optimum.
+ * Classic Dijkstra over the undirected adjacency, skipping banned edges.
+ * Used to enumerate distinct alternatives deterministically (Yen-style:
+ * ban the previous path's edges, re-run). Bounded and fast even on the
+ * dense graph, unlike naive path enumeration.
  */
-function enumeratePaths(
+function dijkstraPath(
   startStopId: string,
   endStopId: string,
-  scenarioId: ScenarioId,
-  reports: CommuterReport[],
-  maxPaths = 3
-): PathState[] {
-  const found: PathState[] = [];
-  const queue: PathState[] = [{ nodes: [startStopId], minutes: 0, cost: 0 }];
-  let expansions = 0;
+  banned: Set<string>
+): string[] | null {
+  const dist = new Map<string, number>([[startStopId, 0]]);
+  const prev = new Map<string, string>();
+  const visited = new Set<string>();
+  const queue: string[] = [startStopId];
 
-  while (queue.length && found.length < maxPaths && expansions < 600) {
-    queue.sort((a, b) => a.minutes - b.minutes);
-    const state = queue.shift()!;
-    expansions += 1;
-    const node = state.nodes[state.nodes.length - 1];
+  while (queue.length) {
+    queue.sort((a, b) => (dist.get(a) ?? Infinity) - (dist.get(b) ?? Infinity));
+    const current = queue.shift()!;
+    if (visited.has(current)) continue;
+    visited.add(current);
+    if (current === endStopId) break;
 
-    if (node === endStopId) {
-      found.push(state);
-      continue;
-    }
-    if (state.nodes.length >= 8) continue;
-
-    for (const adj of ADJ.get(node) ?? []) {
-      if (state.nodes.includes(adj.to)) continue; // simple paths only
-      const { delayMinutes, priceDeltaTzs } = edgeDelay(
-        node,
-        adj.to,
-        adj.edge.basePriceTzs,
-        scenarioId,
-        reports
-      );
-      queue.push({
-        nodes: [...state.nodes, adj.to],
-        minutes: state.minutes + adj.edge.baseMinutes + delayMinutes,
-        cost:
-          state.cost +
-          adj.edge.basePriceTzs +
-          scenarioSurcharge(adj.edge.basePriceTzs, scenarioId) +
-          priceDeltaTzs,
-      });
+    for (const adj of ADJ.get(current) ?? []) {
+      if (banned.has(pairKey(current, adj.to))) continue;
+      const nextDist = (dist.get(current) ?? Infinity) + adj.edge.baseMinutes;
+      if (nextDist < (dist.get(adj.to) ?? Infinity)) {
+        dist.set(adj.to, nextDist);
+        prev.set(adj.to, current);
+        queue.push(adj.to);
+      }
     }
   }
 
-  return found;
+  if (!visited.has(endStopId)) return null;
+  const nodes = [endStopId];
+  let pointer = endStopId;
+  while (pointer !== startStopId) {
+    const p = prev.get(pointer);
+    if (!p) return null;
+    nodes.unshift(p);
+    pointer = p;
+  }
+  return nodes;
+}
+
+function pairKey(a: string, b: string): string {
+  return [a, b].sort().join('|');
 }
 
 function buildResult(
@@ -393,7 +456,8 @@ function buildResult(
 
 /**
  * Up to three distinct plans, ordered fastest-first, flagged
- * isFastest / isCheapest so the UI can badge them.
+ * isFastest / isCheapest so the UI can badge them. Alternatives are
+ * found Yen-style: rerun Dijkstra with the previous path's edges banned.
  */
 export function calculateRouteOptions(
   startStopId: string,
@@ -403,17 +467,26 @@ export function calculateRouteOptions(
 ): TransitRouteResult[] {
   if (!STOPS[startStopId] || !STOPS[endStopId] || startStopId === endStopId) return [];
 
-  const options = enumeratePaths(startStopId, endStopId, scenarioId, reports)
-    .map((p) => buildResult(p.nodes, scenarioId, reports))
-    .filter((r) => r.legs.length > 0)
-    .sort((a, b) => a.duration - b.duration);
+  const banned = new Set<string>();
+  const options: TransitRouteResult[] = [];
 
+  for (let i = 0; i < 3; i += 1) {
+    const nodes = dijkstraPath(startStopId, endStopId, banned);
+    if (!nodes) break;
+    const result = buildResult(nodes, scenarioId, reports);
+    if (result.legs.length === 0) break;
+    options.push(result);
+    for (let j = 0; j < nodes.length - 1; j += 1) {
+      banned.add(pairKey(nodes[j], nodes[j + 1]));
+    }
+  }
+
+  options.sort((a, b) => a.duration - b.duration);
   if (options.length > 0) options[0].isFastest = true;
-  const cheapest = options.reduce(
-    (min, r) => (r.cost < min.cost ? r : min),
-    options[0]
-  );
-  if (cheapest) cheapest.isCheapest = true;
+  if (options.length > 0) {
+    const cheapest = options.reduce((min, r) => (r.cost < min.cost ? r : min), options[0]);
+    cheapest.isCheapest = true;
+  }
 
   return options;
 }
