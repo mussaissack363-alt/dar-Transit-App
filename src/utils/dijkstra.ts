@@ -41,6 +41,14 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   mlimani: { name: 'Mlimani (UDSM)', lat: -6.7690, long: 39.2870 },
   magufuli_terminal: { name: 'Magufuli Bus Terminal', lat: -6.7870, long: 39.2990 },
   gongo: { name: 'Gongo la Mboto', lat: -6.7950, long: 39.3170 },
+  // --- Tabata micro-areas (daladala stages on Nyerere Rd) ---
+  tabata_kimanga: { name: 'Tabata Kimanga', lat: -6.7840, long: 39.2650 },
+  tabata_a: { name: 'Tabata A', lat: -6.7910, long: 39.2640 },
+  tabata_b: { name: 'Tabata B', lat: -6.7930, long: 39.2700 },
+  tabata_keko: { name: 'Tabata Keko', lat: -6.7900, long: 39.2750 },
+  tabata_dk: { name: 'Tabata DK', lat: -6.7940, long: 39.2660 },
+  tabata_changombe: { name: "Tabata Chang'ombe", lat: -6.7970, long: 39.2700 },
+  segerea: { name: 'Tabata Segerea', lat: -6.8150, long: 39.2650 },
   // --- City center & inner districts ---
   posta: { name: 'Posta (City Center)', lat: -6.7720, long: 39.2280 },
   kariakoo_market: { name: 'Kariakoo Market', lat: -6.7680, long: 39.2660 },
@@ -144,6 +152,17 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   // --- Pugu Rd: Buguruni→Gongo la Mboto→Ukonga ---
   { from: 'buguruni', to: 'gongo', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Gongo la Mboto' },
   { from: 'gongo', to: 'ukonga', baseMinutes: 10, basePriceTzs: 400, label: 'Daladala Ukonga-Pugu Rd' },
+  // --- Nyerere Rd stages: Kimanga→Ilala Boma→Tabata A→DK→B→Keko→Chang'ombe→Segerea ---
+  { from: 'kariakoo_market', to: 'tabata_kimanga', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Kimanga' },
+  { from: 'tabata_kimanga', to: 'ilala', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Ilala stage' },
+  { from: 'ilala', to: 'tabata_a', baseMinutes: 5, basePriceTzs: 250, label: 'Daladala Tabata A' },
+  { from: 'tabata_a', to: 'tabata_dk', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Tabata DK' },
+  { from: 'tabata_dk', to: 'tabata_b', baseMinutes: 3, basePriceTzs: 250, label: 'Daladala Tabata B' },
+  { from: 'tabata_b', to: 'tabata_keko', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Tabata Keko' },
+  { from: 'tabata_keko', to: 'tabata_changombe', baseMinutes: 5, basePriceTzs: 300, label: 'Daladala Tabata Chang’ombe' },
+  { from: 'tabata_changombe', to: 'changombe', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Chang’ombe link' },
+  { from: 'tabata_changombe', to: 'segerea', baseMinutes: 13, basePriceTzs: 450, label: 'Daladala Segerea' },
+  { from: 'tabata_dk', to: 'tabata', baseMinutes: 4, basePriceTzs: 250, label: 'Daladala Tabata stage' },
   // --- Coastal & outer districts ---
   { from: 'msasani', to: 'masaki', baseMinutes: 8, basePriceTzs: 300, label: 'Daladala Msasani' },
   { from: 'msasani', to: 'slipway', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Toure Drive' },
