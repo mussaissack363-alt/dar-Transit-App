@@ -21,6 +21,17 @@ const STOPS: Record<string, { name: string; lat: number; long: number }> = {
   damoni: { name: 'Damoni Circle', lat: -6.7510, long: 39.2880 },
   tegeta_mwenge: { name: 'Tegeta-Mwenge Daladala Hub', lat: -6.8000, long: 39.2500 },
   mzizima: { name: 'Mzizima DART Stop', lat: -6.7995, long: 39.3070 },
+  // --- Extended network: real Dar es Salaam locations ---
+  magomeni: { name: 'Magomeni', lat: -6.7860, long: 39.2560 },
+  sunny_side: { name: 'Sunny Side (Kinondoni)', lat: -6.7830, long: 39.2790 },
+  slipway: { name: 'Slipway Waterfront', lat: -6.7070, long: 39.2930 },
+  coco_beach: { name: 'Coco Beach (Oysterbay)', lat: -6.7200, long: 39.3060 },
+  sinza: { name: 'Sinza Mori', lat: -6.7800, long: 39.3100 },
+  kimara: { name: 'Kimara Corner', lat: -6.7690, long: 39.3430 },
+  mbezi: { name: 'Mbezi Beach', lat: -6.7610, long: 39.3720 },
+  mbagala: { name: 'Mbagala (Chang’ombe)', lat: -6.7980, long: 39.2790 },
+  tmj: { name: 'Tandika-Mjimwema Rd (Kigamboni)', lat: -6.8090, long: 39.2310 },
+  gerezani_terminus: { name: 'Gerezani Ferry Terminus', lat: -6.7640, long: 39.2560 },
 };
 
 export { STOPS as STOP_COORDS };
@@ -47,6 +58,26 @@ const EDGES: Array<{ from: string; to: string; baseMinutes: number; basePriceTzs
   { from: 'otrong_tire', to: 'mlelani', baseMinutes: 11, basePriceTzs: 400, label: 'Daladala Masaki' },
   { from: 'ukonga', to: 'tegeta_mwenge', baseMinutes: 13, basePriceTzs: 500, label: 'Daladala Ukonga' },
   { from: 'ukonga', to: 'mikocheni', baseMinutes: 16, basePriceTzs: 600, label: 'Daladala Mikocheni' },
+  // --- Extended network edges ---
+  { from: 'kariakoo_gerezani', to: 'magomeni', baseMinutes: 9, basePriceTzs: 400, label: 'Daladala Magomeni' },
+  { from: 'magomeni', to: 'morocco', baseMinutes: 8, basePriceTzs: 350, label: 'Daladala Morocco line' },
+  { from: 'magomeni', to: 'sunny_side', baseMinutes: 7, basePriceTzs: 350, label: 'Daladala Sunny Side' },
+  { from: 'sunny_side', to: 'ubungo', baseMinutes: 8, basePriceTzs: 400, label: 'Daladala Ubungo feeder' },
+  { from: 'sunny_side', to: 'sinza', baseMinutes: 6, basePriceTzs: 300, label: 'Daladala Sinza' },
+  { from: 'sinza', to: 'mzizima', baseMinutes: 12, basePriceTzs: 450, label: 'Daladala Mzizima link' },
+  { from: 'sinza', to: 'kimara', baseMinutes: 14, basePriceTzs: 500, label: 'Daladala Kimara' },
+  { from: 'kimara', to: 'mbezi', baseMinutes: 15, basePriceTzs: 600, label: 'Daladala Mbezi Beach' },
+  { from: 'kimara', to: 'ubungo', baseMinutes: 16, basePriceTzs: 550, label: 'Daladala Ubungo express' },
+  { from: 'masaki', to: 'coco_beach', baseMinutes: 7, basePriceTzs: 300, label: 'Daladala Oysterbay' },
+  { from: 'coco_beach', to: 'mikocheni', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Mikocheni B' },
+  { from: 'masaki', to: 'slipway', baseMinutes: 5, basePriceTzs: 300, label: 'Daladala Slipway' },
+  { from: 'slipway', to: 'otrong_tire', baseMinutes: 9, basePriceTzs: 350, label: 'Daladala Toure Drive' },
+  { from: 'mikocheni', to: 'sinza', baseMinutes: 11, basePriceTzs: 400, label: 'Daladala Mwenge-Sinza' },
+  { from: 'tegeta_mwenge', to: 'mbagala', baseMinutes: 17, basePriceTzs: 550, label: 'Daladala Mbagala' },
+  { from: 'mbagala', to: 'kariakoo_gerezani', baseMinutes: 14, basePriceTzs: 500, label: 'Daladala Chang\u2019ombe' },
+  { from: 'kivukoni', to: 'gerezani_terminus', baseMinutes: 6, basePriceTzs: 300, label: 'Kigamboni ferry walk' },
+  { from: 'gerezani_terminus', to: 'kariakoo_gerezani', baseMinutes: 5, basePriceTzs: 250, label: 'Gerezani link shuttle' },
+  { from: 'kivukoni', to: 'tmj', baseMinutes: 20, basePriceTzs: 650, label: 'Daladala Kigamboni town' },
 ];
 
 /**

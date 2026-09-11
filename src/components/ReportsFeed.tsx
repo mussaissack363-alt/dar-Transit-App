@@ -5,6 +5,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { CommuterReport } from '../types';
+import { STOP_NAMES as SHARED_STOP_NAMES } from '../utils/dijkstra';
 
 const TYPE_LABELS: Record<CommuterReport['type'], string> = {
   price: 'Fare update',
@@ -12,20 +13,7 @@ const TYPE_LABELS: Record<CommuterReport['type'], string> = {
   traffic: 'Traffic',
 };
 
-const STOP_NAMES: Record<string, string> = {
-  ukonga: 'Ukonga',
-  morocco: 'Morocco DART Terminal',
-  ubungo: 'Ubungo Interchange',
-  kivukoni: 'Kivukoni Ferry Terminal',
-  kariakoo_gerezani: 'Kariakoo Gerezani',
-  mlelani: 'Mlelani Street',
-  masaki: 'Masaki Junction',
-  otrong_tire: "Otrong'i Tire",
-  mikocheni: 'Mikocheni Road',
-  damoni: 'Damoni Circle',
-  tegeta_mwenge: 'Tegeta-Mwenge Hub',
-  mzizima: 'Mzizima DART Stop',
-};
+const STOP_NAMES: Record<string, string> = SHARED_STOP_NAMES;
 
 const STOP_IDS = Object.keys(STOP_NAMES);
 
