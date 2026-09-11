@@ -4,53 +4,115 @@
  */
 
 import React, { useState } from 'react';
-import { TransitRouteResult } from '../types';
+import { TransitRouteResult, ReportLeg } from '../types';
+import { RouteMap } from './RouteMap';
+import { StopSearch, StopOption } from './StopSearch';
+import { STOP_COORDS } from '../utils/dijkstra';
 
-const STOP_OPTIONS = [
-  { id: 'morocco', name: 'Morocco DART Terminal' },
-  { id: 'kariakoo_gerezani', name: 'Kariakoo Gerezani' },
-  { id: 'mlelani', name: 'Mlelani Street' },
-  { id: 'kivukoni', name: 'Kivukoni Ferry Terminal' },
-  { id: 'ubungo', name: 'Ubungo Interchange' },
-  { id: 'mzizima', name: 'Mzizima DART Stop' },
-  { id: 'masaki', name: 'Masaki Junction' },
-  { id: 'mikocheni', name: 'Mikocheni Road' },
-  { id: 'damoni', name: 'Damoni Circle' },
-  { id: 'tegeta_mwenge', name: 'Tegeta-Mwenge Hub' },
-  { id: 'ukonga', name: 'Ukonga' },
-];
+const STOP_OPTIONS: StopOption[] = Object.entries(STOP_COORDS)
+  .map(([id, s]) => ({ id, name: s.name }))
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 const SCENARIO_OPTIONS = [
   { id: 'normal', label: 'Normal daytime' },
-  { id: 'heavy-rain', label: "Heavy rain (Jangwani overflow)" },
+  { id: 'heavy-rain', label: 'Heavy rain (Jangwani overflow)' },
   { id: 'heavy-fog', label: 'Heavy fog (early mornings)' },
 ];
+
+function LegFareBreakdown({ leg }: { leg: ReportLeg }) {
+  return (
+    <span className="leg-meta">
+      {leg.durationMinutes} min
+      {typeof leg.crowdDelayMinutes === 'number' && leg.crowdDelayMinutes > 0 && (
+        <em className="leg-crowd-delay"> · +{leg.crowdDelayMinutes} min traffic</em>
+      )}
+      {' · '}
+      {typeof leg.baseTzs === 'number' ? (
+        <>
+          {leg.baseTzs} TZS
+          {typeof leg.surgeTzs === 'number' && <em className="leg-surge"> +{leg.surgeTzs} weather</em>}
+          {typeof leg.crowdHikeTzs === 'number' && (
+            <em className="leg-hike"> +{leg.crowdHikeTzs} hike</em>
+          )}
+          {typeof leg.priceTzs === 'number' && (leg.surgeTzs || leg.crowdHikeTzs) ? (
+            <> = {leg.priceTzs} TZS</>
+          ) : null}
+        </>
+      ) : (
+        <>{leg.priceTzs} TZS</>
+      )}
+    </span>
+  );
+}
+
+function OptionCard({
+  option,
+  rank,
+  onHover,
+}: {
+  option: TransitRouteResult;
+  rank: number;
+  onHover: (o: TransitRouteResult | null) => void;
+}) {
+  return (
+    <div
+      className={`route-option card${option.isFastest ? ' option-fastest' : ''}`}
+      onMouseEnter={() => onHover(option)}
+      onMouseLeave={() => onHover(null)}
+    >
+      <div className="option-head">
+        <h3 className="card-title">
+          {rank === 1 ? 'Recommended' : `Alternative ${rank - 1}`}:{' '}
+          {Math.round(option.duration)} min · {option.cost} TZS · ~{option.distance} km
+        </h3>
+        <div className="option-badges">
+          {option.isFastest && <span className="badge badge-fastest">Fastest</span>}
+          {option.isCheapest && <span className="badge badge-cheapest">Cheapest</span>}
+        </div>
+      </div>
+
+      <ol className="legs">
+        {option.legs.map((leg, idx) => (
+          <li key={idx} className="leg">
+            <span className="leg-mode">{leg.mode}</span>
+            <span className="leg-route">
+              {leg.fromName ?? leg.from} → {leg.toName ?? leg.to}
+            </span>
+            <LegFareBreakdown leg={leg} />
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 
 export function RoutePlanner() {
   const [startStopId, setStartStopId] = useState('');
   const [endStopId, setEndStopId] = useState('');
   const [scenarioId, setScenarioId] = useState<'normal' | 'heavy-rain' | 'heavy-fog'>('normal');
   const [route, setRoute] = useState<TransitRouteResult | null>(null);
+  const [highlighted, setHighlighted] = useState<TransitRouteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handlePlan = async () => {
     if (!startStopId || !endStopId) {
-      setError('Please choose start and end stops.');
+      setError('Please choose start and destination.');
+      return;
+    }
+    if (startStopId === endStopId) {
+      setError('Start and destination are the same stop.');
       return;
     }
     setLoading(true);
     setError(null);
     setRoute(null);
+    setHighlighted(null);
     try {
       const res = await fetch('/api/route-plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          startStopId,
-          endStopId,
-          scenarioId,
-        }),
+        body: JSON.stringify({ startStopId, endStopId, scenarioId }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -59,12 +121,14 @@ export function RoutePlanner() {
       }
       setRoute(data);
     } catch {
-      setError('Network error while planning route.');
+      setError('Network error while planning route — is the server running?');
     } finally {
       setLoading(false);
     }
   };
 
+  const allOptions = route ? [route, ...(route.alternatives ?? [])] : [];
+  const mapRoute = highlighted ?? route;
   const startName = STOP_OPTIONS.find((s) => s.id === startStopId)?.name ?? '';
   const endName = STOP_OPTIONS.find((s) => s.id === endStopId)?.name ?? '';
 
@@ -74,45 +138,27 @@ export function RoutePlanner() {
         <div className="card-head">
           <h2 className="card-title">Plan your trip</h2>
           <p className="card-subtitle">
-            Compare DART, daladala, and ferry options across Dar es Salaam stops.
+            Search any stop, compare up to 3 plans, and see exactly where fares and delays come from.
           </p>
         </div>
 
         <div className="form-grid">
-          <div className="field">
-            <label htmlFor="start">Start stop</label>
-            <select
-              id="start"
-              value={startStopId}
-              onChange={(event) => setStartStopId(event.target.value)}
-              aria-label="Start stop"
-            >
-              <option value="">Select start...</option>
-              {STOP_OPTIONS.map((stop) => (
-                <option key={stop.id} value={stop.id}>
-                  {stop.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="field">
-            <label htmlFor="end">End stop</label>
-            <select
-              id="end"
-              value={endStopId}
-              onChange={(event) => setEndStopId(event.target.value)}
-              aria-label="End stop"
-            >
-              <option value="">Select destination...</option>
-              {STOP_OPTIONS.map((stop) => (
-                <option key={stop.id} value={stop.id}>
-                  {stop.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
+          <StopSearch
+            id="start"
+            label="Start stop"
+            options={STOP_OPTIONS}
+            value={startStopId}
+            onChange={setStartStopId}
+            placeholder="e.g. Morocco, Ubungo, ferry…"
+          />
+          <StopSearch
+            id="end"
+            label="Destination"
+            options={STOP_OPTIONS}
+            value={endStopId}
+            onChange={setEndStopId}
+            placeholder="e.g. Masaki, Kariakoo…"
+          />
           <div className="field">
             <label htmlFor="scenario">Scenario</label>
             <select
@@ -136,7 +182,7 @@ export function RoutePlanner() {
             onClick={handlePlan}
             disabled={loading || !startStopId || !endStopId}
           >
-            {loading ? 'Calculating...' : 'Plan route'}
+            {loading ? 'Calculating…' : 'Plan route'}
           </button>
         </div>
 
@@ -146,54 +192,25 @@ export function RoutePlanner() {
           </p>
         )}
 
+        <RouteMap route={mapRoute} startStopId={startStopId} endStopId={endStopId} />
+
         {route && (
-          <div className="route-result card">
+          <div className="route-results">
             <div className="card-head">
               <h3 className="card-title">
                 {startName} → {endName}
               </h3>
               <p className="card-subtitle">
-                {SCENARIO_OPTIONS.find((o) => o.id === route.scenario)?.label ?? route.scenario}
+                {SCENARIO_OPTIONS.find((o) => o.id === route.scenario)?.label ?? route.scenario} ·
+                hover a plan to trace it on the map
               </p>
             </div>
-
-            <dl className="stats-grid">
-              <div>
-                <dt>Total time</dt>
-                <dd>{route.duration} min</dd>
-              </div>
-              <div>
-                <dt>Estimated fare</dt>
-                <dd>{route.cost} TZS</dd>
-              </div>
-              <div>
-                <dt>Approx distance</dt>
-                <dd>{route.distance} km</dd>
-              </div>
-            </dl>
-
-            <h4 className="section-title">Segments</h4>
-            <ol className="legs">
-              {route.legs.map((leg, idx) => {
-                const fromOption = STOP_OPTIONS.find((s) => s.id === leg.from);
-                const toOption = STOP_OPTIONS.find((s) => s.id === leg.to);
-                return (
-                  <li key={idx} className="leg">
-                    <span className="leg-mode">{leg.mode}</span>
-                    <span className="leg-route">
-                      {fromOption?.name} → {toOption?.name}
-                    </span>
-                    <span className="leg-meta">
-                      {leg.durationMinutes} min · {leg.priceTzs} TZS
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
+            {allOptions.map((option, idx) => (
+              <OptionCard key={idx} option={option} rank={idx + 1} onHover={setHighlighted} />
+            ))}
           </div>
         )}
       </div>
     </section>
   );
 }
-

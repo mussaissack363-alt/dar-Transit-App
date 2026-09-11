@@ -7,8 +7,9 @@ import { ReportsFeed } from './components/ReportsFeed';
 import { Assistant } from './components/Assistant';
 import { TrafficBulletin } from './components/TrafficBulletin';
 import { AutoTrafficBulletin } from './components/AutoTrafficBulletin';
+import { FareCheck } from './components/FareCheck';
 export function App() {
-  const [page, setPage] = useState<'plan' | 'reports' | 'assistant' | 'bulletin' | 'auto-bulletin'>('plan');
+  const [page, setPage] = useState<'plan' | 'reports' | 'assistant' | 'bulletin' | 'auto-bulletin' | 'fare-check'>('plan');
 
   return (
     <div className="app-shell">
@@ -67,6 +68,17 @@ import { AutoTrafficBulletin } from './components/AutoTrafficBulletin';
             Auto Traffic Updates
           </button>
           <button
+            className={`nav-pill${page === 'fare-check' ? ' active' : ''}`}
+            tabIndex={0}
+            onClick={() => setPage('fare-check')}
+          >
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="nav-icon">
+              <path d="M12 1v22" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Fare Check
+          </button>
+          <button
             className={`nav-pill${page === 'assistant' ? ' active' : ''}`}
             tabIndex={0}
             onClick={() => setPage('assistant')}
@@ -85,6 +97,7 @@ import { AutoTrafficBulletin } from './components/AutoTrafficBulletin';
         {page === 'reports' && <ReportsFeed />}
         {page === 'bulletin' && <TrafficBulletin />}
         {page === 'auto-bulletin' && <AutoTrafficBulletin />}
+        {page === 'fare-check' && <FareCheck />}
         {page === 'assistant' && <Assistant />}
       </main>
     </div>

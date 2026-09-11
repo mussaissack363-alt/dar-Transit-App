@@ -754,3 +754,330 @@ textarea {
   color: #6b7280;
   margin-left: 12px;
 }
+
+/* ---- Route planner live map (Leaflet / OpenStreetMap) ---- */
+.route-map-wrap {
+  margin-top: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.route-map {
+  height: 340px;
+  width: 100%;
+  z-index: 0; /* keep Leaflet panes below dropdowns/modals */
+}
+
+.route-map-caption {
+  margin: 0;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+
+.route-map-dot span {
+  display: block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Commuter reports: scope tabs, impact pills, archive ---- */
+.scope-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.scope-tab {
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.scope-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.archive-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.range-chip {
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.range-chip.active {
+  background: var(--secondary);
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.impact-summary {
+  margin: 0 0 12px 0;
+  padding: 8px 12px;
+  background: var(--muted);
+  border-radius: var(--radius-md);
+}
+
+.pill-delay {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: var(--danger);
+  color: #fff;
+}
+
+.report-item.sev-high {
+  border-left: 4px solid var(--danger);
+}
+
+.report-item.sev-medium {
+  border-left: 4px solid var(--warning);
+}
+
+.report-item.sev-low {
+  border-left: 4px solid var(--success);
+}
+
+.report-archived {
+  opacity: 0.75;
+}
+
+/* ---- Searchable stop selector ---- */
+.stop-search {
+  position: relative;
+}
+
+.stop-search input {
+  width: 100%;
+}
+
+.stop-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  padding: 2px 6px;
+}
+
+.stop-search-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.stop-search-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.stop-search-item:hover,
+.stop-search-item.active {
+  background: var(--secondary);
+}
+
+.stop-search-empty {
+  padding: 8px 10px;
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+}
+
+/* ---- Route option cards ---- */
+.route-results {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.route-option {
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.route-option:hover {
+  border-color: var(--primary);
+}
+
+.option-fastest {
+  border-left: 4px solid var(--primary);
+}
+
+.option-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.option-badges {
+  display: flex;
+  gap: 6px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.badge-fastest {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.badge-cheapest {
+  background: var(--success);
+  color: #fff;
+}
+
+.leg-crowd-delay,
+.leg-hike {
+  color: var(--danger);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.leg-surge {
+  color: var(--warning);
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* ---- Fare check table ---- */
+.fare-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.fare-search {
+  flex: 1;
+  min-width: 220px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--foreground);
+}
+
+.fare-threshold {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.fare-table-wrap {
+  overflow-x: auto;
+}
+
+.fare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.fare-table th,
+.fare-table td {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.fare-table th {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted-foreground);
+}
+
+.fare-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.fare-service {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.fare-note {
+  color: var(--muted-foreground);
+  font-size: 0.8rem;
+  max-width: 260px;
+}
+
+.fare-hike-pct {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.fare-hike-pct.high {
+  background: var(--danger);
+  color: #fff;
+}
+
+.fare-flagged {
+  background: oklch(0.6 0.2 25 / 0.06);
+}

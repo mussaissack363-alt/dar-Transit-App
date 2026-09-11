@@ -8,8 +8,8 @@ import path from 'path';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
-import { calculateTransitRoute } from './src/utils/dijkstra';
-import { ScenarioId, CommuterReport } from './src/types';
+import { calculateRouteOptions, FARE_REFERENCE } from './src/utils/dijkstra';
+import { ScenarioId, CommuterReport, AutoBulletin, AutoBulletinConfig } from './src/types';
 
 dotenv.config();
 
@@ -37,18 +37,22 @@ async function startServer() {
   };
 
   // Prepopulated user-reported active updates for transport prices and road conditions in Dar
+  const agoIso = (mins: number) => new Date(Date.now() - mins * 60_000).toISOString();
+
   const SEED_REPORTS: CommuterReport[] = [
     {
       id: 'rep-1',
       type: 'price',
       targetType: 'Route',
-      targetId: 'daladala_d1',
+      targetId: 'tegeta_mwenge-mikocheni',
       title: 'Tegeta-Mwenge conductors hiking fare',
-      details: 'Due to severe supply container delays on Bagamoyo Road, daladala conductors are demanding 700 TZS instead of the standard 500 TZS. Commuters have no choice but to pay.',
+      details: 'Due to severe supply container delays on Bagamoyo Road, daladala conductors are demanding 700 TZS instead of the standard 400 TZS. Commuters have no choice but to pay.',
       reporterName: 'Juma Omari',
       timestamp: '12 mins ago',
       votes: 14,
       priceValue: 700,
+      delayMinutes: 5,
+      createdAt: agoIso(12),
     },
     {
       id: 'rep-2',
@@ -61,6 +65,8 @@ async function startServer() {
       timestamp: '24 mins ago',
       votes: 9,
       severity: 'low',
+      delayMinutes: 7,
+      createdAt: agoIso(24),
     },
     {
       id: 'rep-3',
@@ -73,18 +79,22 @@ async function startServer() {
       timestamp: '45 mins ago',
       votes: 21,
       severity: 'medium',
+      delayMinutes: 18,
+      createdAt: agoIso(45),
     },
     {
       id: 'rep-4',
       type: 'condition',
       targetType: 'Stop',
       targetId: 'kivukoni',
-      title: 'Harbor swells delaying Kigamboni boarding',
-      details: 'Strong winds are creating choppy water at the bay; cars are boarded at half speed. Ferry departures are running late.',
+      title: 'Harbor swells delayed Kigamboni boarding',
+      details: 'Strong winds created choppy water at the bay; cars were boarded at half speed and ferry departures ran late. Winds have since eased.',
       reporterName: 'Captain Ally',
-      timestamp: '1 hr ago',
+      timestamp: '2 days ago',
       votes: 18,
       severity: 'medium',
+      delayMinutes: 12,
+      createdAt: agoIso(2 * 24 * 60),
     },
     {
       id: 'rep-5',
@@ -97,6 +107,8 @@ async function startServer() {
       timestamp: '5 mins ago',
       votes: 38,
       severity: 'high',
+      delayMinutes: 25,
+      createdAt: agoIso(5),
     }
   ];
 
@@ -115,26 +127,48 @@ async function startServer() {
         return res.status(400).json({ error: 'Missing startStopId or endStopId' });
       }
 
-      const result = calculateTransitRoute(
+      const options = calculateRouteOptions(
         startStopId,
         endStopId,
         (scenarioId || 'normal') as ScenarioId,
         commuterReports
       );
-      if (!result) {
+      if (options.length === 0) {
         return res.status(404).json({ error: 'No reachable transit route found.' });
       }
 
-      return res.json(result);
+      const [best, ...rest] = options;
+      return res.json({ ...best, alternatives: rest });
     } catch (err: any) {
       console.error('Error calculating route:', err);
       return res.status(500).json({ error: 'Server route calculation error' });
     }
   });
 
-  // 2b. API - Receive active updates on prices, road conditions, and traffic levels
+  // 2b. API - Receive active updates on prices, road conditions, and traffic levels.
+  // A report stays "active" for a visibility window scaled to its delay impact,
+  // then shifts to the reference archive where it stays searchable by day/week.
+  const impactHours = (r: CommuterReport): number => {
+    const delay = r.delayMinutes ?? (r.severity === 'high' ? 25 : r.severity === 'medium' ? 12 : 4);
+    if (delay >= 20) return 72; // major disruption stays visible 3 days
+    if (delay >= 8) return 24;  // moderate disruption stays visible 1 day
+    return 6;                   // minor blips stay visible 6 hours
+  };
+
   app.get('/api/reports', (req, res) => {
-    return res.json(commuterReports);
+    const scope = req.query.scope === 'archive' ? 'archive' : 'active';
+    const days = Math.max(1, Math.min(90, Number(req.query.days) || 7));
+    const cutoffMs = Date.now() - days * 24 * 60 * 60 * 1000;
+
+    const filtered = commuterReports.filter((r) => {
+      const created = new Date(r.createdAt).getTime();
+      if (!Number.isFinite(created)) return scope === 'active';
+      const expired = Date.now() - created > impactHours(r) * 3_600_000;
+      if (scope === 'archive') return expired && created >= cutoffMs;
+      return !expired;
+    });
+
+    return res.json(filtered);
   });
 
   app.post('/api/reports', (req, res) => {
@@ -155,7 +189,9 @@ async function startServer() {
         timestamp: 'Just now',
         votes: 1, // Start with reporter’s upvote
         priceValue: priceValue ? Number(priceValue) : undefined,
-        severity: severity || undefined
+        severity: severity || undefined,
+        delayMinutes: req.body.delayMinutes ? Number(req.body.delayMinutes) : undefined,
+        createdAt: new Date().toISOString(),
       };
 
       commuterReports.unshift(newReport);
@@ -181,7 +217,17 @@ async function startServer() {
         report.votes += 1;
       }
 
-      return res.json({ success: true, votes: report.votes });
+      // Crowdsourced confirmation: enough upvotes escalates the impact rating.
+      const SEVERITY_ORDER: Array<'low' | 'medium' | 'high'> = ['low', 'medium', 'high'];
+      if (report.votes >= 15) {
+        report.severity = 'high';
+        report.delayMinutes = Math.max(report.delayMinutes ?? 0, 25);
+      } else if (report.votes >= 8) {
+        report.severity = 'medium';
+        report.delayMinutes = Math.max(report.delayMinutes ?? 0, 12);
+      }
+
+      return res.json({ success: true, votes: report.votes, severity: report.severity, delayMinutes: report.delayMinutes });
     } catch (err) {
       return res.status(500).json({ error: 'Failed to apply vote' });
     }
@@ -286,6 +332,116 @@ async function startServer() {
     } catch (err: any) {
       console.error('Error in AI Assistant handler:', err);
       return res.status(500).json({ error: 'Error communicating with AI Assistant' });
+    }
+  });
+
+  // 2d. API - Fare reference: posted standards vs typical conductor asks.
+  app.get('/api/fares', (req, res) => {
+    return res.json(FARE_REFERENCE);
+  });
+
+  // 2e. API - Auto-ingested traffic bulletins (public feeds / sample data)
+  const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+
+  const autoBulletins: AutoBulletin[] = [
+    {
+      id: 'auto-1',
+      source: 'transit_authority',
+      originId: 'dart-ops',
+      title: 'DART M1 trunk running at reduced frequency',
+      summary: 'Kariakoo–Morocco segment operating with 4 fewer buses this afternoon. Expect longer waits at Morocco and Gerezani terminals.',
+      affectedStopId: 'morocco',
+      affectedRouteId: 'DART M1',
+      severity: 'medium',
+      issuedAt: minutesAgo(35),
+      ingestedAt: minutesAgo(33),
+    },
+    {
+      id: 'auto-2',
+      source: 'social_signal',
+      originId: 'commuter-x',
+      title: 'Heavy congestion on Bagamoyo Road near Tegeta',
+      summary: 'Multiple commuter posts report standstill traffic around Tegeta-Mwenge. Daladala fares trending above standard on this corridor.',
+      affectedStopId: 'tegeta_mwenge',
+      affectedRouteId: null,
+      severity: 'high',
+      issuedAt: minutesAgo(80),
+      ingestedAt: minutesAgo(75),
+    },
+    {
+      id: 'auto-3',
+      source: 'rss_json',
+      originId: 'tanroads-feed',
+      title: 'Ferry channel normal after morning swells',
+      summary: 'Kigamboni channel crossings have resumed normal schedule. Morning wind delays have cleared.',
+      affectedStopId: 'kivukoni',
+      affectedRouteId: null,
+      severity: 'low',
+      issuedAt: minutesAgo(140),
+      ingestedAt: minutesAgo(138),
+    },
+  ];
+
+  const SAMPLE_BULLETINS: Array<Omit<AutoBulletin, 'id' | 'issuedAt' | 'ingestedAt'>> = [
+    {
+      source: 'social_signal',
+      originId: 'commuter-x',
+      title: 'Daladala queue long at Ubungo Interchange',
+      summary: 'Commuters report 15+ minute waits for Mwenge-bound daladalas at Ubungo terminal.',
+      affectedStopId: 'ubungo',
+      affectedRouteId: null,
+      severity: 'medium',
+    },
+    {
+      source: 'transit_authority',
+      originId: 'dart-ops',
+      title: 'DART M2 detour via Morogoro Road',
+      summary: 'Mzizima-bound BRT buses diverting around a stalled truck. Minor delays expected for one hour.',
+      affectedStopId: 'mzizima',
+      affectedRouteId: 'DART M2',
+      severity: 'low',
+    },
+    {
+      source: 'gemini_detected',
+      originId: 'feed-scan',
+      title: 'Flooding watch: Jangwani valley water level rising',
+      summary: 'Reports suggest Morogoro Road at Jangwani may close if rains continue. Consider Mandela Road alternatives.',
+      affectedStopId: null,
+      affectedRouteId: null,
+      severity: 'high',
+    },
+  ];
+  let sampleCursor = 0;
+
+  app.get('/api/traffic/auto-bulletins/latest', (req, res) => {
+    const count = Math.max(1, Math.min(50, Number(req.query.count) || 20));
+    return res.json(autoBulletins.slice(0, count));
+  });
+
+  app.get('/api/traffic/auto-ingest/status', (req, res) => {
+    const config: AutoBulletinConfig = {
+      sourceUrl: null,
+      pollSeconds: 300,
+      enabled: false,
+    };
+    return res.json(config);
+  });
+
+  app.post('/api/traffic/auto-ingest/seed-sample', (req, res) => {
+    try {
+      const sample = SAMPLE_BULLETINS[sampleCursor % SAMPLE_BULLETINS.length];
+      sampleCursor += 1;
+      const bulletin: AutoBulletin = {
+        ...sample,
+        id: `auto-${Date.now()}`,
+        issuedAt: new Date().toISOString(),
+        ingestedAt: new Date().toISOString(),
+      };
+      autoBulletins.unshift(bulletin);
+      return res.json({ success: true, bulletin });
+    } catch (err) {
+      console.error('Error seeding sample bulletin:', err);
+      return res.status(500).json({ error: 'Failed to seed sample bulletin' });
     }
   });
 
