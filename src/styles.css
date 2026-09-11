@@ -1180,3 +1180,39 @@ textarea {
 .map-search-pin {
   font-size: 0.8rem;
 }
+
+/* ---- Place popup: nearest stops + plan actions ---- */
+.map-nearest-title {
+  margin: 8px 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #555;
+}
+
+.map-nearest-stop {
+  font-size: 0.85rem;
+  padding: 2px 0;
+}
+
+.map-nearest-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.map-nearest-btn {
+  border: 1px solid #2c7be5;
+  background: #2c7be5;
+  color: #fff;
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.map-nearest-btn:hover {
+  filter: brightness(0.92);
+}

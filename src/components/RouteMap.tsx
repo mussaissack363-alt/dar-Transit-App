@@ -15,7 +15,7 @@ import {
 import L from 'leaflet';
 import { STOP_COORDS } from '../utils/dijkstra';
 import { TransitRouteResult } from '../types';
-import { MapSearch } from './MapSearch';
+import { MapSearch, MapSearchHandlers, NearestStop } from './MapSearch';
 import 'leaflet/dist/leaflet.css';
 
 /** Colorful circle markers so we do not depend on Leaflet's default PNG pins. */
@@ -56,9 +56,11 @@ interface RouteMapProps {
   route: TransitRouteResult | null;
   startStopId: string;
   endStopId: string;
+  onUseAsStart?: (stop: NearestStop) => void;
+  onUseAsEnd?: (stop: NearestStop) => void;
 }
 
-export function RouteMap({ route, startStopId, endStopId }: RouteMapProps) {
+export function RouteMap({ route, startStopId, endStopId, onUseAsStart, onUseAsEnd }: RouteMapProps) {
   const routePoints = useMemo(() => {
     if (!route) return [];
     return [route.start, ...route.legs.map((l) => l.to)]
@@ -95,7 +97,7 @@ export function RouteMap({ route, startStopId, endStopId }: RouteMapProps) {
           />
         )}
         <FitBounds route={route} />
-        <MapSearch />
+        <MapSearch onUseAsStart={onUseAsStart} onUseAsEnd={onUseAsEnd} />
       </MapContainer>
       <p className="route-map-caption">
         Live map &amp; search &copy; OpenStreetMap contributors — 25 stops across Dar es Salaam.

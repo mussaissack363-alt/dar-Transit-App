@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { TransitRouteResult, ReportLeg } from '../types';
 import { RouteMap } from './RouteMap';
 import { StopSearch, StopOption } from './StopSearch';
+import { NearestStop } from './MapSearch';
 import { STOP_COORDS } from '../utils/dijkstra';
 
 const STOP_OPTIONS: StopOption[] = Object.entries(STOP_COORDS)
@@ -132,6 +133,15 @@ export function RoutePlanner() {
   const startName = STOP_OPTIONS.find((s) => s.id === startStopId)?.name ?? '';
   const endName = STOP_OPTIONS.find((s) => s.id === endStopId)?.name ?? '';
 
+  const useAsStart = (stop: NearestStop) => {
+    setStartStopId(stop.id);
+    setError(null);
+  };
+  const useAsEnd = (stop: NearestStop) => {
+    setEndStopId(stop.id);
+    setError(null);
+  };
+
   return (
     <section className="dashboard-section">
       <div className="card">
@@ -192,7 +202,13 @@ export function RoutePlanner() {
           </p>
         )}
 
-        <RouteMap route={mapRoute} startStopId={startStopId} endStopId={endStopId} />
+        <RouteMap
+          route={mapRoute}
+          startStopId={startStopId}
+          endStopId={endStopId}
+          onUseAsStart={useAsStart}
+          onUseAsEnd={useAsEnd}
+        />
 
         {route && (
           <div className="route-results">
